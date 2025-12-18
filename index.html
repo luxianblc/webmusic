@@ -1,201 +1,276 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN" data-theme="auto">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音乐播放器 - 发现好音乐，享受好时光</title>
+    <title>音乐播放器</title>
     
-    <!-- Font Awesome -->
+    <!-- JavaScript 文件 -->
+    <script src="js/search-enhanced.js"></script>
+    
+    <!-- 样式表 -->
+    <link rel="stylesheet" href="styles/netease.css">
+    <link rel="stylesheet" href="styles/themes.css">
+    <link rel="stylesheet" href="styles/theme.css">
+    <link rel="stylesheet" href="styles/login.css">
+    
+    <!-- 图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- 主样式 -->
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/login.css">
-    
-    <style>
-        /* 基础样式 */
-        :root {
-            --primary-color: #e60026;
-            --bg-color: #f5f5f5;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #e0e0e0;
-        }
-
-        [data-theme="dark"] {
-            --primary-color: #ff2d55;
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #ffffff;
-            --border-color: #333333;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
-            transition: background 0.3s, color 0.3s;
-        }
-
-        /* 模态框基础样式 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            animation: modalSlideIn 0.3s ease;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 按钮基础样式 */
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-color);
-        }
-    </style>
+    <!-- 不再需要引入 QRCode.js，因为使用 API 返回的 base64 图片 -->
 </head>
-<body>
-    <!-- Header区域 -->
-    <div id="header-container">
-        <!-- header.html的内容会被加载到这里 -->
-    </div>
 
-    <!-- 主内容区域 -->
+<body>
+    <!-- 背景覆盖层 -->
+    <div id="backgroundOverlay" class="background-overlay"></div>
+
+    <!-- 顶部搜索栏 -->
+    <div id="neteaseHeader"></div>
+
+    <!-- 主要内容区 -->
     <main class="main-container">
-        <div class="content-section active" id="home">
-            <h2>推荐歌单</h2>
-            <div class="playlists-grid" id="playlistsGrid">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>加载中...</p>
+        <div class="sidebar">
+            <nav class="nav-menu">
+                <a href="#home" class="nav-item active" onclick="switchSection('home')">
+                    <i class="fas fa-home"></i> 主页
+                </a>
+                <a href="#search" class="nav-item" onclick="switchSection('search')">
+                    <i class="fas fa-search"></i> 搜索
+                </a>
+                <a href="#library" class="nav-item" onclick="switchSection('library')">
+                    <i class="fas fa-music"></i> 音乐库
+                </a>
+                <a href="#playlists" class="nav-item" onclick="switchSection('playlists')">
+                    <i class="fas fa-list"></i> 歌单
+                </a>
+                <a href="#lyrics" class="nav-item" onclick="switchSection('lyrics')">
+                    <i class="fas fa-align-left"></i> 歌词
+                </a>
+                <a href="#theme" class="nav-item" onclick="switchSection('theme')">
+                    <i class="fas fa-palette"></i> 主题
+                </a>
+            </nav>
+        </div>
+
+        <div class="content">
+            <!-- 主页内容 -->
+            <section id="home" class="content-section active">
+                <div class="welcome-section">
+                    <h1>音乐播放器</h1>
+                    <p>发现好音乐，享受好时光</p>
+                    <div class="quick-actions">
+                        <button onclick="switchSection('search')" class="btn-primary">
+                            <i class="fas fa-search"></i> 开始搜索
+                        </button>
+                        <button onclick="loadHotSongs()" class="btn-secondary">
+                            <i class="fas fa-fire"></i> 热门歌曲
+                        </button>
+                    </div>
                 </div>
-            </div>
+
+                <div class="recommendations">
+                    <h2><i class="fas fa-star"></i> 推荐歌单</h2>
+                    <div id="playlistsGrid" class="grid-view"></div>
+                </div>
+            </section>
+
+            <!-- 搜索内容 -->
+            <section id="search" class="content-section">
+                <div class="search-results">
+                    <h2><i class="fas fa-search"></i> 搜索结果</h2>
+                    <div id="searchResults" class="results-container"></div>
+                </div>
+            </section>
+
+            <!-- 音乐库 -->
+            <section id="library" class="content-section">
+                <div class="library-content">
+                    <h2><i class="fas fa-music"></i> 我的音乐库</h2>
+                    <div id="libraryContent"></div>
+                </div>
+            </section>
+
+            <!-- 歌单 -->
+            <section id="playlists" class="content-section">
+                <div class="playlists-content">
+                    <h2><i class="fas fa-list"></i> 我的歌单</h2>
+                    <div id="playlistsContent"></div>
+                </div>
+            </section>
+
+            <!-- 歌词页面 -->
+            <section id="lyrics" class="content-section">
+                <div class="lyrics-page">
+                    <div class="lyrics-card">
+                        <div class="lyrics-header">
+                            <div class="lyrics-cover-wrap">
+                                <img id="lyricSongCover" src="https://via.placeholder.com/220" alt="专辑封面">
+                            </div>
+                            <div class="lyrics-info-text">
+                                <div id="lyricSongName" class="lyrics-song-name">未选择歌曲</div>
+                                <div id="lyricArtist" class="lyrics-artist">--</div>
+                            </div>
+                        </div>
+                        <div id="lyricLines" class="lyrics-lines">
+                            <!-- 动态插入歌词 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 主题页面 -->
+            <section id="theme" class="content-section">
+                <div class="theme-container">
+                    <div class="theme-card">
+                        <h2><i class="fas fa-palette"></i> 主题设置</h2>
+                        <div class="theme-options">
+                            <div class="theme-option active" onclick="switchThemeMode('default')">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <h4><i class="fas fa-music"></i> 默认主题</h4>
+                                <p>清爽简洁的界面设计，专注于音乐播放体验</p>
+                            </div>
+
+                            <div class="theme-option" onclick="switchThemeMode('cover-blur')" id="coverBlurTheme">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <h4><i class="fas fa-image"></i> 专辑封面背景</h4>
+                                <p>将正在播放的歌曲专辑封面作为模糊背景，沉浸感更强</p>
+                            </div>
+
+                            <div class="theme-option" onclick="switchThemeMode('minimal')">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <h4><i class="fas fa-compress-alt"></i> 极简模式</h4>
+                                <p>最小化界面元素，专注于音乐本身</p>
+                            </div>
+                        </div>
+
+                        <div class="advanced-filters">
+                            <div class="filter-group">
+                                <h4><i class="fas fa-sliders-h"></i> 高级设置</h4>
+                                <label>
+                                    <input type="range" id="blurIntensity" min="0" max="50" value="30" 
+                                           oninput="updateBlurIntensity(this.value)">
+                                    <span>背景模糊强度: <span id="blurValue">30</span>px</span>
+                                </label>
+
+                                <label>
+                                    <input type="range" id="backgroundOpacity" min="0" max="100" value="40" 
+                                           oninput="updateBackgroundOpacity(this.value)">
+                                    <span>背景透明度: <span id="opacityValue">40</span>%</span>
+                                </label>
+
+                                <label style="margin-top: 15px;">
+                                    <input type="checkbox" id="autoThemeSwitch" checked 
+                                           onchange="toggleAutoThemeSwitch(this.checked)">
+                                    <span>自动随歌曲切换背景</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="theme-current">
+                            <h4><i class="fas fa-info-circle"></i> 当前设置</h4>
+                            <div class="current-settings">
+                                <p>主题模式: <span id="currentThemeMode">默认主题</span></p>
+                                <p>模糊强度: <span id="currentBlurValue">30px</span></p>
+                                <p>背景透明度: <span id="currentOpacityValue">40%</span></p>
+                                <p>自动切换: <span id="currentAutoSwitch">开启</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
-    <!-- 登录模态框容器（login.js会动态创建） -->
-    <div id="modal-container"></div>
+    <!-- 底部播放器 -->
+    <div id="neteasePlayer"></div>
 
-    <!-- 用户菜单容器（login.js会动态创建） -->
-    <div id="user-menu-container"></div>
+    <!-- API配置 -->
+    <div class="api-config-btn" onclick="toggleApiConfig()">
+        <i class="fas fa-cog"></i>
+    </div>
 
-    <!-- 脚本加载 -->
+    <!-- API配置模态框 -->
+    <div id="apiConfigModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-server"></i> API配置</h3>
+            <input type="text" id="apiBaseUrl" placeholder="输入API地址" value="https://neteaseapi-enhanced.vercel.app">
+            <div class="modal-actions">
+                <button onclick="updateApiBase()" class="btn-primary">保存</button>
+                <button onclick="toggleApiConfig()" class="btn-secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 文件 -->
+    <script src="js/netease.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/login.js"></script> <!-- 新增的登录管理器 -->
+
     <script>
-        // 先加载header
-        fetch('header.html')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('header-container').innerHTML = html;
-                
-                // header加载完成后，按顺序加载其他脚本
-                const scripts = [
-                    'js/login.js',      // 先加载登录管理器
-                    'js/netease.js'     // 再加载主应用
-                ];
-                
-                function loadScript(index) {
-                    if (index >= scripts.length) {
-                        console.log('所有脚本加载完成');
-                        
-                        // 确保登录管理器初始化
-                        if (window.initLoginManager) {
-                            window.initLoginManager();
-                        } else if (window.loginManager && window.loginManager.initLoginManager) {
-                            window.loginManager.initLoginManager();
-                        }
-                        
-                        // 初始化主应用
-                        if (window.initApp) {
-                            window.initApp();
-                        }
-                        
-                        return;
-                    }
-                    
-                    const script = document.createElement('script');
-                    script.src = scripts[index];
-                    script.onload = () => {
-                        console.log(`${scripts[index]} 加载成功`);
-                        loadScript(index + 1);
-                    };
-                    script.onerror = (error) => {
-                        console.error(`加载 ${scripts[index]} 失败:`, error);
-                        loadScript(index + 1); // 继续加载下一个
-                    };
-                    document.body.appendChild(script);
+        // 加载组件
+        window.addEventListener('DOMContentLoaded', async () => {
+            // 异步加载头部和播放器组件
+            await loadComponent('neteaseHeader', 'header.html');
+            await loadComponent('neteasePlayer', 'player.html');
+            
+            // 初始化应用
+            initApp();
+        });
+
+        // 加载组件函数
+        async function loadComponent(elementId, url) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.innerHTML = html;
+                } else {
+                    console.warn(`Element #${elementId} not found`);
                 }
-                
-                loadScript(0);
-            })
-            .catch(error => {
-                console.error('加载header失败:', error);
-                document.getElementById('header-container').innerHTML = `
-                    <div style="padding:20px;text-align:center;color:red;">
-                        加载头部失败，请检查网络连接
-                        <button onclick="location.reload()" class="btn-primary" style="margin-top:10px;">
-                            重试
-                        </button>
-                    </div>
-                `;
-            });
+            } catch (error) {
+                console.error('加载组件失败:', error);
+            }
+        }
+
+        // 初始化应用
+        function initApp() {
+            // 设置主题
+            if (typeof setupTheme === 'function') {
+                setupTheme();
+            }
+            
+            // 初始化播放器
+            if (typeof initPlayer === 'function') {
+                initPlayer();
+            }
+            
+            // 初始化搜索功能
+            if (typeof initEnhancedSearch === 'function') {
+                initEnhancedSearch();
+            }
+            
+            // 初始化主题管理器
+            if (typeof initThemeManager === 'function') {
+                initThemeManager();
+            }
+            
+            // 初始化登录管理器
+            if (typeof initLoginManager === 'function') {
+                initLoginManager();
+            }
+        }
     </script>
 </body>
+
 </html>
