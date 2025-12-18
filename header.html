@@ -48,10 +48,13 @@
             <button onclick="quickExamples()" class="examples-btn" title="搜索示例">
                 <i class="fas fa-lightbulb"></i>
             </button>
-            <button class="login-btn" title="点击登录" onclick="login()">
-                <i class="fas fa-user"></i>
-
-
+            
+            <!-- 修改后的登录按钮区域 -->
+            <button class="login-btn" title="点击登录" onclick="login()" id="userLoginBtn">
+                <div class="login-btn-content">
+                    <i class="fas fa-user"></i>
+                    <span class="login-btn-text">登录</span>
+                </div>
             </button>
         </div>
     </div>
@@ -115,3 +118,130 @@
         </div>
     </div>
 </header>
+
+<style>
+/* 登录按钮样式优化 */
+.login-btn {
+    position: relative;
+    min-width: 90px;
+    height: 40px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.login-btn:hover {
+    background: var(--bg-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+}
+
+.login-btn-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.login-btn-text {
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60px;
+}
+
+.login-btn i {
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.login-btn:hover i {
+    transform: scale(1.1);
+}
+
+/* 已登录状态指示器 */
+.login-btn.logged-in::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #28a745;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 0 rgba(40, 167, 69, 0.4);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+/* 用户头像样式 */
+.login-btn .user-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.login-btn:hover .user-avatar {
+    border-color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+/* 暗色主题适配 */
+[data-theme="dark"] .login-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .login-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .login-btn {
+        min-width: 40px;
+        padding: 0 10px;
+    }
+    
+    .login-btn-text {
+        max-width: 40px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-btn {
+        min-width: 40px;
+        width: 40px;
+    }
+    
+    .login-btn-text {
+        display: none;
+    }
+}
+</style>
