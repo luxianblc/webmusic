@@ -22,14 +22,7 @@ function setupTheme() {
         document.documentElement.setAttribute('data-theme', savedTheme);
     }
 }
-// 确保登录函数指向新的登录管理器
-window.login = () => {
-    if (window.loginManager) {
-        window.loginManager.showLoginModal();
-    } else {
-        console.error('登录管理器未初始化');
-    }
-};
+
 // 切换主题
 function toggleTheme() {
     const themes = ['auto', 'light', 'dark'];
@@ -174,12 +167,8 @@ function updateApiBase() {
     alert('API地址已更新');
 }
 
-// 系统主题变化监听
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    if (currentTheme === 'auto') {
-        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-    }
-});
+
+
 // 在netease.js中添加这些函数
 function setupSearch() {
     // 确保搜索输入框获得焦点时显示建议
