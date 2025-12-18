@@ -199,3 +199,30 @@ function initApp() {
     loadRecommendations();
     setupSearch(); // 添加这一行
 }
+// 构建带时间戳的API URL（用于二维码登录）
+function buildApiUrlWithTimestamp(endpoint, params = {}) {
+    const timestamp = Date.now();
+    return buildApiUrl(endpoint, { ...params, timestamp });
+}
+
+// 检查登录状态的函数
+function checkLoginStatus() {
+    return window.loginManager ? window.loginManager.checkLogin() : false;
+}
+
+// 获取用户信息
+function getUserInfo() {
+    return window.loginManager ? window.loginManager.getUserInfo() : null;
+}
+
+// 需要登录的API调用
+async function fetchWithLogin(endpoint, params = {}) {
+    if (window.loginManager && window.loginManager.checkLogin()) {
+        return window.loginManager.fetchWithLogin(endpoint, params);
+    } else {
+        // 未登录时使用普通API
+        const url = buildApiUrl(endpoint, params);
+        const response = await fetch(url);
+        return await response.json();
+    }
+}
