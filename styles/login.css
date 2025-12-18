@@ -1,22 +1,54 @@
-/* 用户菜单样式 */
-.user-menu {
-    position: absolute;
-    top: 60px;
-    right: 20px;
-    background-color: var(--card-bg);
-    border-radius: 10px;
-    box-shadow: var(--shadow);
-    min-width: 200px;
-    z-index: 1000;
-    display: none;
+/* 登录相关样式 - 优化版 */
+
+/* 登录按钮样式增强 */
+.login-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    min-width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 15px;
     border: 1px solid var(--border-color);
-    animation: fadeIn 0.2s ease;
+    background: var(--card-bg);
+    color: var(--text-color);
 }
 
-@keyframes fadeIn {
+.login-btn:hover {
+    background: var(--bg-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.login-btn img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.login-btn:hover img {
+    border-color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+/* 登录弹窗样式 */
+#loginModal .modal-content {
+    max-width: 320px;
+    text-align: center;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(-20px);
     }
     to {
         opacity: 1;
@@ -24,16 +56,146 @@
     }
 }
 
-.user-menu-header {
+.login-instruction {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+/* 二维码容器 */
+#qrcodeContainer {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    margin: 15px 0;
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
+}
+
+#qrcodeContainer.active {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+#qrcodeImage {
+    max-width: 200px;
+    height: 200px;
+    margin: 0 auto 15px;
     padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border: 1px solid #e9ecef;
+}
+
+#qrcodeImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* 状态框 */
+.status-box {
+    padding: 12px;
+    border-radius: 8px;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.status-success {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border-left: 4px solid #28a745;
+    color: #155724;
+}
+
+.status-error {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    border-left: 4px solid #dc3545;
+    color: #721c24;
+}
+
+.status-info {
+    background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+    border-left: 4px solid #17a2b8;
+    color: #0c5460;
+}
+
+.status-waiting {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    border-left: 4px solid #ffc107;
+    color: #856404;
+}
+
+/* 二维码时间戳 */
+.qr-timestamp {
+    font-size: 12px;
+    color: #999;
+    margin-top: 10px;
+}
+
+/* 登录结果 */
+#qrResult {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* 用户菜单样式 */
+.user-menu {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background: var(--card-bg);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    min-width: 250px;
+    z-index: 1000;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    animation: fadeIn 0.2s ease;
+}
+
+.user-menu-header {
+    padding: 20px;
     border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(230,0,38,0.05), rgba(255,45,85,0.05));
 }
 
 .user-avatar {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.default-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary-color), #ff2d55);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 3px 10px rgba(230,0,38,0.3);
 }
 
 .user-info {
@@ -42,121 +204,71 @@
 
 .user-name {
     font-weight: bold;
-    margin-bottom: 3px;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
 }
 
 .user-uid {
     font-size: 12px;
     color: #666;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
-[data-theme="dark"] .user-uid {
-    color: #aaa;
-}
-
-.user-stats {
-    padding: 15px;
+/* 统计网格 */
+.stats-grid {
+    padding: 20px;
     border-bottom: 1px solid var(--border-color);
 }
 
 .stat-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    font-size: 13px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
 }
 
-.stat-label {
-    color: #666;
-    font-size: 12px;
-}
-
-[data-theme="dark"] .stat-label {
-    color: #aaa;
+.stat-item {
+    text-align: center;
 }
 
 .stat-value {
+    font-size: 1.5rem;
     font-weight: bold;
     color: var(--primary-color);
+    margin-bottom: 5px;
 }
 
-.user-actions {
-    padding: 10px;
+.stat-label {
+    font-size: 12px;
+    color: #666;
 }
 
+/* 退出按钮 */
 .logout-btn {
     width: 100%;
-    padding: 8px;
+    padding: 12px;
     background: transparent;
     border: 1px solid var(--border-color);
-    border-radius: 5px;
+    border-radius: 8px;
     color: var(--text-color);
     cursor: pointer;
+    font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     transition: all 0.3s;
+    margin: 15px;
+    width: calc(100% - 30px);
 }
 
 .logout-btn:hover {
-    background-color: var(--bg-color);
+    background: var(--bg-color);
     border-color: var(--primary-color);
     color: var(--primary-color);
-}
-
-/* 登录按钮样式增强 */
-.login-btn {
-    position: relative;
-    overflow: hidden;
-}
-
-.login-btn img {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 5px;
-    border: 2px solid transparent;
-    transition: border-color 0.3s;
-}
-
-.login-btn:hover img {
-    border-color: var(--primary-color);
-}
-
-/* 登录弹窗样式 */
-#loginModal .modal-content {
-    max-width: 300px;
-    text-align: center;
-}
-
-#qrcodeContainer {
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    margin: 15px auto;
-    display: inline-block;
-    border: 1px solid var(--border-color);
-}
-
-#loginStatus {
-    text-align: center;
-    margin: 15px 0;
-    min-height: 24px;
-    color: #666;
-    font-size: 14px;
-    transition: color 0.3s;
-}
-
-[data-theme="dark"] #loginStatus {
-    color: #aaa;
-}
-
-#loginModal .modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(230,0,38,0.1);
 }
 
 /* 响应式调整 */
@@ -172,22 +284,34 @@
     
     #loginModal .modal-content {
         max-width: 90%;
+        margin: 20px;
+    }
+    
+    #qrcodeImage {
+        max-width: 180px;
+        height: 180px;
     }
 }
 
-/* 登录状态指示器 */
-.login-indicator {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: #4CAF50;
-    border: 2px solid var(--card-bg);
-    display: none;
+/* 暗色主题适配 */
+[data-theme="dark"] #qrcodeContainer {
+    background: rgba(50, 50, 50, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
-.login-btn.logged-in .login-indicator {
-    display: block;
+[data-theme="dark"] #qrcodeImage {
+    background: rgba(70, 70, 70, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .user-uid {
+    color: #aaa;
+}
+
+[data-theme="dark"] .stat-label {
+    color: #aaa;
+}
+
+[data-theme="dark"] .login-instruction {
+    color: #aaa;
 }
