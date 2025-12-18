@@ -1,0 +1,193 @@
+/* 用户菜单样式 */
+.user-menu {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    min-width: 200px;
+    z-index: 1000;
+    display: none;
+    border: 1px solid var(--border-color);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-menu-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.user-uid {
+    font-size: 12px;
+    color: #666;
+}
+
+[data-theme="dark"] .user-uid {
+    color: #aaa;
+}
+
+.user-stats {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 12px;
+}
+
+[data-theme="dark"] .stat-label {
+    color: #aaa;
+}
+
+.stat-value {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.user-actions {
+    padding: 10px;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 8px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: var(--bg-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* 登录按钮样式增强 */
+.login-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.login-btn img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 5px;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.login-btn:hover img {
+    border-color: var(--primary-color);
+}
+
+/* 登录弹窗样式 */
+#loginModal .modal-content {
+    max-width: 300px;
+    text-align: center;
+}
+
+#qrcodeContainer {
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    margin: 15px auto;
+    display: inline-block;
+    border: 1px solid var(--border-color);
+}
+
+#loginStatus {
+    text-align: center;
+    margin: 15px 0;
+    min-height: 24px;
+    color: #666;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+[data-theme="dark"] #loginStatus {
+    color: #aaa;
+}
+
+#loginModal .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .user-menu {
+        position: fixed;
+        top: 70px;
+        right: 10px;
+        left: 10px;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    
+    #loginModal .modal-content {
+        max-width: 90%;
+    }
+}
+
+/* 登录状态指示器 */
+.login-indicator {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    border: 2px solid var(--card-bg);
+    display: none;
+}
+
+.login-btn.logged-in .login-indicator {
+    display: block;
+}
