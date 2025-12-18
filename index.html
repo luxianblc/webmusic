@@ -6,14 +6,20 @@
     <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>音乐播放器</title>
+    
+    <!-- JavaScript 文件 -->
     <script src="js/search-enhanced.js"></script>
+    
+    <!-- 样式表 -->
     <link rel="stylesheet" href="styles/netease.css">
     <link rel="stylesheet" href="styles/themes.css">
     <link rel="stylesheet" href="styles/theme.css">
     <link rel="stylesheet" href="styles/login.css">
+    
+    <!-- 图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- QRCode.js 用于生成二维码 -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    
+    <!-- 不再需要引入 QRCode.js，因为使用 API 返回的 base64 图片 -->
 </head>
 
 <body>
@@ -191,6 +197,7 @@
         <i class="fas fa-cog"></i>
     </div>
 
+    <!-- API配置模态框 -->
     <div id="apiConfigModal" class="modal">
         <div class="modal-content">
             <h3><i class="fas fa-server"></i> API配置</h3>
@@ -202,39 +209,63 @@
         </div>
     </div>
 
+    <!-- JavaScript 文件 -->
     <script src="js/netease.js"></script>
     <script src="js/search.js"></script>
     <script src="js/player.js"></script>
     <script src="js/theme.js"></script>
-    <script src="js/login.js"></script>
+    <script src="js/login.js"></script> <!-- 新增的登录管理器 -->
 
     <script>
         // 加载组件
         window.addEventListener('DOMContentLoaded', async () => {
+            // 异步加载头部和播放器组件
             await loadComponent('neteaseHeader', 'header.html');
             await loadComponent('neteasePlayer', 'player.html');
+            
+            // 初始化应用
             initApp();
         });
 
+        // 加载组件函数
         async function loadComponent(elementId, url) {
             try {
                 const response = await fetch(url);
                 const html = await response.text();
-                document.getElementById(elementId).innerHTML = html;
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.innerHTML = html;
+                } else {
+                    console.warn(`Element #${elementId} not found`);
+                }
             } catch (error) {
                 console.error('加载组件失败:', error);
             }
         }
 
+        // 初始化应用
         function initApp() {
-            setupTheme();
-            initPlayer();
+            // 设置主题
+            if (typeof setupTheme === 'function') {
+                setupTheme();
+            }
+            
+            // 初始化播放器
+            if (typeof initPlayer === 'function') {
+                initPlayer();
+            }
+            
+            // 初始化搜索功能
             if (typeof initEnhancedSearch === 'function') {
                 initEnhancedSearch();
             }
+            
+            // 初始化主题管理器
             if (typeof initThemeManager === 'function') {
                 initThemeManager();
             }
+            
+            // 初始化登录管理器
             if (typeof initLoginManager === 'function') {
                 initLoginManager();
             }
