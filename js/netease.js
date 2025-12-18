@@ -111,10 +111,15 @@ async function loadHotSongs() {
     performSearch();
 }
 
-// 登录功能
-function login() {
-    alert('登录功能开发中...');
-}
+
+// 确保登录函数指向新的登录管理器
+window.login = () => {
+    if (window.loginManager) {
+        window.loginManager.showLoginModal();
+    } else {
+        console.error('登录管理器未初始化');
+    }
+};
 
 // 加载设置
 function loadSettings() {
