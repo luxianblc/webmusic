@@ -1,4 +1,4 @@
-// 登录管理器 - 优化版（参考API测试平台）
+// 登录管理器 - 修正版
 class LoginManager {
     constructor() {
         this.qrKey = null;
@@ -178,13 +178,16 @@ class LoginManager {
         qrLoginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 处理中...';
         
         qrcodeContainer.style.display = 'block';
-        document.getElementById('qrTimestamp').textContent = Date.now();
+        if (document.getElementById('qrTimestamp')) {
+            document.getElementById('qrTimestamp').textContent = Date.now();
+        }
         
         try {
             // 1. 获取二维码key
             this.updateQRStatus('正在获取二维码密钥...', 'waiting');
             
-            const keyUrl = buildApiUrl('/login/qr/key', { timestamp: Date.now() });
+            // 使用修正后的 buildApiUrl 函数
+            const keyUrl = this.buildApiUrl('/login/qr/key', { timestamp: Date.now() });
             const keyResponse = await fetch(keyUrl);
             const keyData = await keyResponse.json();
             
@@ -196,7 +199,7 @@ class LoginManager {
             this.updateQRStatus('正在生成二维码...', 'waiting');
             
             // 2. 生成二维码
-            const qrUrl = buildApiUrl('/login/qr/create', { 
+            const qrUrl = this.buildApiUrl('/login/qr/create', { 
                 key: this.qrKey, 
                 qrimg: true,
                 timestamp: Date.now()
@@ -210,16 +213,40 @@ class LoginManager {
             
             // 显示二维码
             const qrcodeImage = document.getElementById('qrcodeImage');
-            qrcodeImage.innerHTML = `<img src="${qrData.data.qrimg}" alt="扫码登录二维码" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">`;
+            if (qrcodeImage) {
+                qrcodeImage.innerHTML = `<img src="${qrData.data.qrimg}" alt="扫码登录二维码" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">`;
+            }
             
             // 3. 开始轮询扫码状态
             this.startPollingQRStatus();
             
         } catch (error) {
             this.updateQRStatus(`错误: ${error.message}`, 'error');
-            qrLoginBtn.disabled = false;
-            qrLoginBtn.innerHTML = '<i class="fas fa-qrcode"></i> 开始二维码登录';
+            if (qrLoginBtn) {
+                qrLoginBtn.disabled = false;
+                qrLoginBtn.innerHTML = '<i class="fas fa-qrcode"></i> 开始二维码登录';
+            }
         }
+    }
+    
+    // 构建API URL（独立版本）
+    buildApiUrl(endpoint, params = {}) {
+        const API_BASE = localStorage.getItem('netease_api_base') || 'https://neteaseapi-enhanced.vercel.app';
+        
+        // 确保所有请求都带上时间戳
+        const timestamp = Date.now();
+        const baseParams = `timestamp=${timestamp}&randomCNIP=true`;
+        const queryParams = new URLSearchParams();
+        
+        // 添加其他参数
+        Object.keys(params).forEach(key => {
+            if (params[key] !== null && params[key] !== undefined) {
+                queryParams.append(key, params[key]);
+            }
+        });
+        
+        const queryString = queryParams.toString();
+        return `${API_BASE}${endpoint}?${baseParams}${queryString ? '&' + queryString : ''}`;
     }
     
     // 更新二维码状态显示
@@ -268,7 +295,7 @@ class LoginManager {
         
         this.checkTimer = setInterval(async () => {
             try {
-                const checkUrl = buildApiUrl('/login/qr/check', { 
+                const checkUrl = this.buildApiUrl('/login/qr/check', { 
                     key: this.qrKey,
                     timestamp: Date.now()
                 });
@@ -368,7 +395,7 @@ class LoginManager {
         
         try {
             // 获取账户基本信息
-            const accountUrl = buildApiUrl('/user/account', { timestamp: Date.now() });
+            const accountUrl = this.buildApiUrl('/user/account', { timestamp: Date.now() });
             const accountResponse = await fetch(accountUrl, {
                 headers: {
                     'Cookie': this.cookie
@@ -379,7 +406,7 @@ class LoginManager {
             
             if (accountData.code === 200 && accountData.account) {
                 // 获取用户详细信息（歌单数量等）
-                const detailUrl = buildApiUrl('/user/subcount', { timestamp: Date.now() });
+                const detailUrl = this.buildApiUrl('/user/subcount', { timestamp: Date.now() });
                 const detailResponse = await fetch(detailUrl, {
                     headers: {
                         'Cookie': this.cookie
@@ -663,10 +690,13 @@ class LoginManager {
     // 获取带有cookie的API URL（用于需要登录的接口）
     getApiUrlWithCookie(endpoint, params = {}) {
         if (!this.cookie) {
-            return buildApiUrl(endpoint, params);
+            return {
+                url: this.buildApiUrl(endpoint, params),
+                options: {}
+            };
         }
         
-        const url = buildApiUrl(endpoint, {
+        const url = this.buildApiUrl(endpoint, {
             ...params,
             timestamp: Date.now()
         });
@@ -709,22 +739,4 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initLoginManager);
 } else {
     initLoginManager();
-}
-
-// 辅助函数：自动为需要登录的接口添加cookie
-async function fetchWithLogin(endpoint, params = {}) {
-    if (!loginManager) {
-        throw new Error('登录管理器未初始化');
-    }
-    
-    if (loginManager.checkLogin()) {
-        const { url, options } = loginManager.getApiUrlWithCookie(endpoint, params);
-        const response = await fetch(url, options);
-        return await response.json();
-    } else {
-        // 未登录，使用普通API
-        const url = buildApiUrl(endpoint, params);
-        const response = await fetch(url);
-        return await response.json();
-    }
 }
