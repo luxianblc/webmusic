@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="auto">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐播放器</title>
+    <script src="js/search-enhanced.js"></script>
+    <link rel="stylesheet" href="styles/netease.css">
+    <link rel="stylesheet" href="styles/themes.css">
+    <link rel="stylesheet" href="styles/theme.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- 背景覆盖层 -->
+    <div id="backgroundOverlay" class="background-overlay"></div>
+
+    <!-- 顶部搜索栏 -->
+    <div id="neteaseHeader"></div>
+
+    <!-- 主要内容区 -->
+    <main class="main-container">
+        <div class="sidebar">
+            <nav class="nav-menu">
+                <a href="#home" class="nav-item active" onclick="switchSection('home')">
+                    <i class="fas fa-home"></i> 主页
+                </a>
+                <a href="#search" class="nav-item" onclick="switchSection('search')">
+                    <i class="fas fa-search"></i> 搜索
+                </a>
+                <a href="#library" class="nav-item" onclick="switchSection('library')">
+                    <i class="fas fa-music"></i> 音乐库
+                </a>
+                <a href="#playlists" class="nav-item" onclick="switchSection('playlists')">
+                    <i class="fas fa-list"></i> 歌单
+                </a>
+                <a href="#lyrics" class="nav-item" onclick="switchSection('lyrics')">
+                    <i class="fas fa-align-left"></i> 歌词
+                </a>
+                <a href="#theme" class="nav-item" onclick="switchSection('theme')">
+                    <i class="fas fa-palette"></i> 主题
+                </a>
+            </nav>
+        </div>
+
+        <div class="content">
+            <!-- 主页内容 -->
+            <section id="home" class="content-section active">
+                <div class="welcome-section">
+                    <h1>音乐播放器</h1>
+                    <p>发现好音乐，享受好时光</p>
+                    <div class="quick-actions">
+                        <button onclick="switchSection('search')" class="btn-primary">
+                            <i class="fas fa-search"></i> 开始搜索
+                        </button>
+                        <button onclick="loadHotSongs()" class="btn-secondary">
+                            <i class="fas fa-fire"></i> 热门歌曲
+                        </button>
+                    </div>
+                </div>
+
+                <div class="recommendations">
+                    <h2><i class="fas fa-star"></i> 推荐歌单</h2>
+                    <div id="playlistsGrid" class="grid-view"></div>
+                </div>
+            </section>
+
+            <!-- 搜索内容 -->
+            <section id="search" class="content-section">
+                <div class="search-results">
+                    <h2><i class="fas fa-search"></i> 搜索结果</h2>
+                    <div id="searchResults" class="results-container"></div>
+                </div>
+            </section>
+
+            <!-- 音乐库 -->
+            <section id="library" class="content-section">
+                <div class="library-content">
+                    <h2><i class="fas fa-music"></i> 我的音乐库</h2>
+                    <div id="libraryContent"></div>
+                </div>
+            </section>
+
+            <!-- 歌单 -->
+            <section id="playlists" class="content-section">
+                <div class="playlists-content">
+                    <h2><i class="fas fa-list"></i> 我的歌单</h2>
+                    <div id="playlistsContent"></div>
+                </div>
+            </section>
+
+            <!-- 歌词页面 -->
+            <section id="lyrics" class="content-section">
+                <div class="lyrics-page">
+                    <div class="lyrics-card">
+                        <div class="lyrics-header">
+                            <div class="lyrics-cover-wrap">
+                                <img id="lyricSongCover" src="https://via.placeholder.com/220" alt="专辑封面">
+                            </div>
+                            <div class="lyrics-info-text">
+                                <div id="lyricSongName" class="lyrics-song-name">未选择歌曲</div>
+                                <div id="lyricArtist" class="lyrics-artist">--</div>
+                            </div>
+                        </div>
+                        <div id="lyricLines" class="lyrics-lines">
+                            <!-- 动态插入歌词 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 主题页面（动态加载） -->
+            <section id="theme" class="content-section">
+                <!-- theme.html 将动态加载到这里 -->
+            </section>
+        </div>
+    </main>
+
+    <!-- 底部播放器 -->
+    <div id="neteasePlayer"></div>
+
+    <!-- API配置 -->
+    <div class="api-config-btn" onclick="toggleApiConfig()">
+        <i class="fas fa-cog"></i>
+    </div>
+
+    <div id="apiConfigModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-server"></i> API配置</h3>
+            <input type="text" id="apiBaseUrl" placeholder="输入API地址" value="https://neteaseapi-enhanced.vercel.app">
+            <div class="modal-actions">
+                <button onclick="updateApiBase()" class="btn-primary">保存</button>
+                <button onclick="toggleApiConfig()" class="btn-secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/netease.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/theme.js"></script>
+
+    <script>
+        // 加载组件
+        window.addEventListener('DOMContentLoaded', async() => {
+            await loadComponent('neteaseHeader', 'header.html');
+            await loadComponent('neteasePlayer', 'player.html');
+            await loadComponent('theme', 'theme.html');
+            initApp();
+        });
+
+        async function loadComponent(elementId, url) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('加载组件失败:', error);
+            }
+        }
+
+        function initApp() {
+            setupTheme();
+            initPlayer();
+            if (typeof initEnhancedSearch === 'function') {
+                initEnhancedSearch();
+            }
+            if (typeof initThemeManager === 'function') {
+                initThemeManager();
+            }
+        }
+    </script>
+</body>
+
+</html>
