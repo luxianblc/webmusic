@@ -1,4 +1,38 @@
-// 搜索增强功能
+// 搜索增强功能（简化版）
+// 修改搜索中的播放按钮，针对VIP歌曲使用专门函数
+window.playSongEnhanced = async function(songId, songName) {
+    // 先检查歌曲类型
+    try {
+        const detailUrl = buildApiUrl('/song/detail', { ids: songId });
+        const detailResponse = await fetch(detailUrl);
+        const detailData = await detailResponse.json();
+        
+        if (detailData.code === 200 && detailData.songs && detailData.songs[0]) {
+            const song = detailData.songs[0];
+            
+            if (song.fee === 1) {
+                // VIP歌曲，使用专门函数
+                console.log(`检测到VIP歌曲: ${songName}`);
+                const success = await playVIPSong(songId, songName);
+                
+                if (!success) {
+                    // 如果专门函数失败，回退到普通播放
+                    await playSong(songId, songName);
+                }
+            } else {
+                // 非VIP歌曲，使用普通播放
+                await playSong(songId, songName);
+            }
+        } else {
+            // 无法获取详情，使用普通播放
+            await playSong(songId, songName);
+        }
+    } catch (error) {
+        console.error('增强播放失败:', error);
+        // 出错时回退到普通播放
+        await playSong(songId, songName);
+    }
+};
 class EnhancedSearch {
     constructor() {
         this.currentPage = 1;
@@ -70,9 +104,6 @@ class EnhancedSearch {
 
         if (value.length > 1) {
             this.showSearchSuggestions(value);
-
-            // 解析搜索语法
-            this.parseSearchSyntax(value);
         }
     }
 
@@ -88,7 +119,7 @@ class EnhancedSearch {
             .filter(item => item.keywords.toLowerCase().includes(query.toLowerCase()))
             .slice(0, 5);
 
-        // 热门搜索建议（可以扩展为从API获取）
+        // 热门搜索建议
         const hotSuggestions = [
             { type: 'hot', text: '周杰伦 最新歌曲', keywords: '周杰伦' },
             { type: 'hot', text: '抖音热门歌曲', keywords: '抖音 热门' },
@@ -124,29 +155,12 @@ class EnhancedSearch {
             }
         });
 
-        // 语法提示
-        if (query.includes(':')) {
-            const syntaxTips = [
-                { text: '搜索歌词: lyric:关键词', keywords: `${query}` },
-                { text: '按歌手搜索: artist:歌手名', keywords: query.replace(':', ':') }
-            ];
-
-            syntaxTips.forEach(tip => {
-                suggestionsHTML += `
-                    <div class="suggestion-item" onclick="enhancedSearch.selectSuggestion('${tip.keywords.replace(/'/g, "\\'")}')">
-                        <i class="fas fa-code"></i>
-                        <span>${tip.text}</span>
-                    </div>
-                `;
-            });
-        }
-
-        // 如果没有建议，显示解析提示
+        // 如果没有建议，显示提示
         if (!suggestionsHTML) {
             suggestionsHTML = `
                 <div class="suggestion-item">
                     <i class="fas fa-info-circle"></i>
-                    <span>输入更多关键词或使用高级语法</span>
+                    <span>输入更多关键词获取建议</span>
                 </div>
             `;
         }
@@ -187,31 +201,6 @@ class EnhancedSearch {
         const input = document.getElementById('searchInput');
         if (input.value.length > 0) {
             this.showSearchSuggestions(input.value);
-        }
-    }
-
-    // 解析搜索语法
-    parseSearchSyntax(query) {
-        const hintDiv = document.getElementById('searchHint');
-        if (!hintDiv) return;
-
-        let hint = '';
-
-        if (query.includes('lyric:')) {
-            hint = '正在搜索包含指定歌词的歌曲';
-        } else if (query.includes('-')) {
-            hint = '已排除指定关键词';
-        } else if (query.includes('"')) {
-            hint = '正在精确匹配搜索';
-        } else if (query.includes('artist:')) {
-            hint = '正在按歌手搜索';
-        }
-
-        if (hint) {
-            hintDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${hint}`;
-            hintDiv.style.display = 'block';
-        } else {
-            hintDiv.style.display = 'none';
         }
     }
 
@@ -257,7 +246,7 @@ class EnhancedSearch {
                 <div class="error">
                     <i class="fas fa-exclamation-circle"></i>
                     <h3>搜索失败</h3>
-                    <p>${error.message}</p>
+                    <p>${error.message || '请检查网络连接'}</p>
                 </div>
             `;
         }
@@ -339,8 +328,6 @@ class EnhancedSearch {
                 </div>
             </div>
             
-            <div id="searchHint" class="search-hint" style="display: none;"></div>
-            
             <div class="results-view" id="resultsView">
         `;
     }
@@ -401,10 +388,10 @@ class EnhancedSearch {
                         </div>
                         <span style="color: #666;">${minutes}:${seconds.toString().padStart(2, '0')}</span>
                         <div class="song-card-actions">
-                            <button class="song-card-btn" onclick="playSong(${song.id}, '${song.name.replace(/'/g, "\\'")}')">
+                            <button class="song-card-btn" onclick="playSong(${song.id}, '${song.name.replace(/'/g, "\\'")}')" title="播放">
                                 <i class="fas fa-play"></i>
                             </button>
-                            <button class="song-card-btn secondary" onclick="enhancedSearch.showSongDetails(${song.id})">
+                            <button class="song-card-btn secondary" onclick="this.showSongDetails(${song.id})" title="详情">
                                 <i class="fas fa-info-circle"></i>
                             </button>
                         </div>
@@ -434,7 +421,7 @@ class EnhancedSearch {
                             <button class="song-card-btn" onclick="playSong(${song.id}, '${song.name.replace(/'/g, "\\'")}')">
                                 <i class="fas fa-play"></i> 播放
                             </button>
-                            <button class="song-card-btn secondary" onclick="enhancedSearch.addToPlaylist(${song.id})">
+                            <button class="song-card-btn secondary" onclick="this.addToPlaylist(${song.id})">
                                 <i class="fas fa-plus"></i> 收藏
                             </button>
                         </div>
@@ -809,37 +796,38 @@ class EnhancedSearch {
         this.hideSuggestions();
     }
 
-    // 扩展功能方法（占位符）
+    // 扩展功能方法
     showSongDetails(songId) {
-        alert(`歌曲详情: ${songId}\n功能开发中...`);
+        // 简单的详情显示
+        alert(`歌曲ID: ${songId}\n点击播放按钮可以试听歌曲`);
     }
 
     addToPlaylist(songId) {
-        alert(`歌曲 ${songId} 已添加到播放列表`);
+        alert(`歌曲ID: ${songId}\n已添加到播放列表（功能演示）`);
     }
 
     viewAlbum(albumId) {
-        alert(`查看专辑: ${albumId}\n功能开发中...`);
+        alert(`专辑ID: ${albumId}\n查看专辑详情（功能演示）`);
     }
 
     playAlbum(albumId) {
-        alert(`播放专辑: ${albumId}`);
+        alert(`播放专辑: ${albumId}\n（功能演示）`);
     }
 
     viewArtist(artistId) {
-        alert(`查看歌手: ${artistId}`);
+        alert(`歌手ID: ${artistId}\n查看歌手主页（功能演示）`);
     }
 
     playArtistTop(artistId) {
-        alert(`播放歌手热门歌曲: ${artistId}`);
+        alert(`播放歌手热门歌曲: ${artistId}\n（功能演示）`);
     }
 
     viewPlaylist(playlistId) {
-        alert(`查看歌单: ${playlistId}`);
+        alert(`歌单ID: ${playlistId}\n查看歌单详情（功能演示）`);
     }
 
     playPlaylist(playlistId) {
-        alert(`播放歌单: ${playlistId}`);
+        alert(`播放歌单: ${playlistId}\n（功能演示）`);
     }
 }
 

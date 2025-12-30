@@ -1,5 +1,5 @@
 /* ===========================
-   登录管理器（修复版）
+   登录管理器（修复版 - 完整版本）
    =========================== */
 
 class LoginManager {
@@ -10,9 +10,26 @@ class LoginManager {
         this.userInfo = null;
         this.cookie = null;
 
+        console.log('LoginManager 构造函数被调用');
+        
         this.loadLoginStatus();
         this.setupGlobalCSS();
         this.updateUserDisplay();
+        
+        // 绑定全局事件
+        this.bindGlobalEvents();
+    }
+
+    /* ---------- 绑定全局事件 ---------- */
+    bindGlobalEvents() {
+        // 确保登录按钮事件被正确绑定
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.login-btn') || e.target.closest('#userLoginBtn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showLoginModal();
+            }
+        });
     }
 
     /* ---------- 本地状态 ---------- */
@@ -83,21 +100,31 @@ class LoginManager {
 
     updateUserDisplay() {
         const btn = document.querySelector('.login-btn');
-        if (!btn) return;
+        if (!btn) {
+            console.log('登录按钮未找到，等待 DOM 加载...');
+            // 延迟重试
+            setTimeout(() => this.updateUserDisplay(), 100);
+            return;
+        }
 
-        btn.classList.toggle(
-            'login-status-indicator',
-            this.isLoggedIn
-        );
+        btn.classList.toggle('login-status-indicator', this.isLoggedIn);
 
         if (this.isLoggedIn && this.userInfo?.profile) {
             const p = this.userInfo.profile;
-            btn.innerHTML = p.avatarUrl
-                ? `<img src="${p.avatarUrl}?param=30y30"><span>${p.nickname}</span>`
-                : `<i class="fas fa-user"></i> ${p.nickname}`;
+            btn.innerHTML = `
+                <div class="login-btn-content">
+                    ${p.avatarUrl ? `<img src="${p.avatarUrl}?param=30y30" class="user-avatar" style="width:24px;height:24px;border-radius:50%;">` : `<i class="fas fa-user"></i>`}
+                    <span class="login-btn-text" id="loginBtnText">${p.nickname || '用户'}</span>
+                </div>
+            `;
             btn.title = p.nickname;
         } else {
-            btn.innerHTML = `<i class="fas fa-user"></i>`;
+            btn.innerHTML = `
+                <div class="login-btn-content">
+                    <i class="fas fa-user"></i>
+                    <span class="login-btn-text" id="loginBtnText">登录</span>
+                </div>
+            `;
             btn.title = '点击登录';
         }
     }
@@ -105,59 +132,93 @@ class LoginManager {
     /* ---------- 弹窗 ---------- */
 
     showLoginModal() {
-        if (this.isLoggedIn) {
-            this.showUserMenu();
-            return;
-        }
-
-        let modal = document.getElementById('loginModal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'loginModal';
-            modal.className = 'modal';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width:350px;text-align:center;padding:25px;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-                        <h3 style="margin:0;">扫码登录</h3>
-                        <button onclick="window.loginManager.closeLoginModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#666;">&times;</button>
-                    </div>
-                    
-                    <div style="color:#666;margin-bottom:20px;font-size:14px;line-height:1.5;">
-                        使用网易云音乐APP扫描二维码登录
-                    </div>
-                    
-                    <div id="qrcodeContainer" style="display:none;">
-                        <div id="qrcodeImage" style="width:200px;height:200px;margin:0 auto 15px;background:#fff;border-radius:8px;padding:10px;"></div>
-                        <div id="qrcodeStatus" style="padding:10px;border-radius:6px;background:#f8f9fa;margin-bottom:10px;">
-                            等待生成二维码...
-                        </div>
-                        <div id="qrTimestamp" style="font-size:12px;color:#999;"></div>
-                    </div>
-                    
-                    <div style="margin-top:20px;">
-                        <button class="btn-primary" id="qrStartBtn" style="padding:10px 20px;font-size:14px;">
-                            <i class="fas fa-qrcode"></i> 生成二维码
-                        </button>
-                        <button class="btn-secondary" id="qrStopBtn" style="padding:10px 20px;font-size:14px;margin-left:10px;">
-                            <i class="fas fa-stop"></i> 取消
-                        </button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            modal.querySelector('#qrStartBtn').onclick = () => this.startQRLogin();
-            modal.querySelector('#qrStopBtn').onclick = () => this.closeLoginModal();
+        try {
+            console.log('showLoginModal 被调用');
+            console.log('this.isLoggedIn:', this.isLoggedIn);
+            console.log('登录管理器状态:', window.loginManager ? '已初始化' : '未初始化');
             
-            // 点击蒙版关闭
-            modal.onclick = (e) => {
-                if (e.target === modal) {
-                    this.closeLoginModal();
-                }
-            };
-        }
+            if (this.isLoggedIn) {
+                console.log('用户已登录，显示用户菜单');
+                this.showUserMenu();
+                return;
+            }
 
-        modal.classList.add('active');
+            let modal = document.getElementById('loginModal');
+            if (!modal) {
+                console.log('创建登录模态框');
+                modal = document.createElement('div');
+                modal.id = 'loginModal';
+                modal.className = 'modal';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width:350px;text-align:center;padding:25px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+                            <h3 style="margin:0;">扫码登录</h3>
+                            <button id="modalCloseBtn" style="background:none;border:none;font-size:20px;cursor:pointer;color:#666;">&times;</button>
+                        </div>
+                        
+                        <div style="color:#666;margin-bottom:20px;font-size:14px;line-height:1.5;">
+                            使用网易云音乐APP扫描二维码登录
+                        </div>
+                        
+                        <div id="qrcodeContainer" style="display:none;">
+                            <div id="qrcodeImage" style="width:200px;height:200px;margin:0 auto 15px;background:#fff;border-radius:8px;padding:10px;"></div>
+                            <div id="qrcodeStatus" style="padding:10px;border-radius:6px;background:#f8f9fa;margin-bottom:10px;">
+                                等待生成二维码...
+                            </div>
+                            <div id="qrTimestamp" style="font-size:12px;color:#999;"></div>
+                        </div>
+                        
+                        <div style="margin-top:20px;">
+                            <button class="btn-primary" id="qrStartBtn" style="padding:10px 20px;font-size:14px;">
+                                <i class="fas fa-qrcode"></i> 生成二维码
+                            </button>
+                            <button class="btn-secondary" id="qrStopBtn" style="padding:10px 20px;font-size:14px;margin-left:10px;">
+                                <i class="fas fa-stop"></i> 取消
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                // 重新绑定事件
+                const startBtn = modal.querySelector('#qrStartBtn');
+                const stopBtn = modal.querySelector('#qrStopBtn');
+                const closeBtn = modal.querySelector('#modalCloseBtn');
+                
+                if (startBtn) {
+                    startBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        this.startQRLogin();
+                    };
+                }
+                
+                if (stopBtn) {
+                    stopBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        this.closeLoginModal();
+                    };
+                }
+                
+                if (closeBtn) {
+                    closeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        this.closeLoginModal();
+                    };
+                }
+                
+                modal.onclick = (e) => {
+                    if (e.target === modal) {
+                        this.closeLoginModal();
+                    }
+                };
+            }
+
+            modal.classList.add('active');
+            
+        } catch (error) {
+            console.error('显示登录模态框失败:', error);
+            alert('登录功能暂时不可用，请刷新页面重试');
+        }
     }
 
     closeLoginModal() {
@@ -418,12 +479,12 @@ class LoginManager {
         menu.innerHTML = `
             <div class="user-menu-header" style="padding:20px;border-bottom:1px solid #dee2e6;display:flex;align-items:center;gap:15px;">
                 ${user.avatarUrl 
-                    ? `<img src="${user.avatarUrl}?param=50y50" class="user-avatar" alt="头像">`
-                    : `<div class="default-avatar"><i class="fas fa-user"></i></div>`
+                    ? `<img src="${user.avatarUrl}?param=50y50" class="user-avatar" style="width:50px;height:50px;border-radius:50%;" alt="头像">`
+                    : `<div class="default-avatar" style="width:50px;height:50px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user" style="font-size:24px;color:#666;"></i></div>`
                 }
                 <div class="user-info">
-                    <div class="user-name">${user.nickname || '未命名用户'}</div>
-                    <div class="user-uid">
+                    <div class="user-name" style="font-weight:bold;font-size:16px;">${user.nickname || '未命名用户'}</div>
+                    <div class="user-uid" style="font-size:12px;color:#666;">
                         <i class="fas fa-id-card"></i>
                         ID: ${user.userId || '未知'}
                     </div>
@@ -432,29 +493,44 @@ class LoginManager {
             
             <div class="stats-grid" style="padding:15px;">
                 <div class="stat-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
-                    <div class="stat-item">
-                        <div class="stat-value">${user.eventCount || 0}</div>
-                        <div class="stat-label">动态</div>
+                    <div class="stat-item" style="text-align:center;">
+                        <div class="stat-value" style="font-size:18px;font-weight:bold;">${user.eventCount || 0}</div>
+                        <div class="stat-label" style="font-size:12px;color:#666;">动态</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${user.follows || 0}</div>
-                        <div class="stat-label">关注</div>
+                    <div class="stat-item" style="text-align:center;">
+                        <div class="stat-value" style="font-size:18px;font-weight:bold;">${user.follows || 0}</div>
+                        <div class="stat-label" style="font-size:12px;color:#666;">关注</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${user.followeds || 0}</div>
-                        <div class="stat-label">粉丝</div>
+                    <div class="stat-item" style="text-align:center;">
+                        <div class="stat-value" style="font-size:18px;font-weight:bold;">${user.followeds || 0}</div>
+                        <div class="stat-label" style="font-size:12px;color:#666;">粉丝</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${user.playlistCount || 0}</div>
-                        <div class="stat-label">歌单</div>
+                    <div class="stat-item" style="text-align:center;">
+                        <div class="stat-value" style="font-size:18px;font-weight:bold;">${user.playlistCount || 0}</div>
+                        <div class="stat-label" style="font-size:12px;color:#666;">歌单</div>
                     </div>
                 </div>
             </div>
             
-            <button onclick="window.loginManager.logout()" class="logout-btn">
+            <button onclick="window.loginManager.logout()" class="logout-btn" style="width:100%;padding:12px;background:none;border:none;border-top:1px solid #dee2e6;color:#dc3545;cursor:pointer;font-size:14px;">
                 <i class="fas fa-sign-out-alt"></i> 退出登录
             </button>
         `;
+
+        // 定位菜单
+        const loginBtn = document.querySelector('.login-btn');
+        if (loginBtn) {
+            const rect = loginBtn.getBoundingClientRect();
+            menu.style.position = 'fixed';
+            menu.style.top = (rect.bottom + 5) + 'px';
+            menu.style.right = (window.innerWidth - rect.right) + 'px';
+            menu.style.zIndex = '1000';
+            menu.style.background = '#fff';
+            menu.style.borderRadius = '10px';
+            menu.style.boxShadow = '0 5px 20px rgba(0,0,0,0.2)';
+            menu.style.minWidth = '200px';
+            menu.style.overflow = 'hidden';
+        }
 
         document.body.appendChild(menu);
 
@@ -462,7 +538,7 @@ class LoginManager {
         setTimeout(() => {
             const closeHandler = (e) => {
                 if (menu && !menu.contains(e.target) && 
-                    !document.querySelector('.login-btn').contains(e.target)) {
+                    !document.querySelector('.login-btn')?.contains(e.target)) {
                     menu.remove();
                     document.removeEventListener('click', closeHandler);
                 }
@@ -517,25 +593,39 @@ function initLoginManager() {
         loginManager = new LoginManager();
         window.loginManager = loginManager;
         console.log('登录管理器已初始化');
+        
+        // 确保全局函数可用
+        window.login = () => loginManager.showLoginModal();
+        window.logout = () => loginManager.logout();
     }
+    return loginManager;
 }
-
-// 全局登录函数
-window.login = function () {
-    if (!loginManager) initLoginManager();
-    loginManager.showLoginModal();
-};
-
-// 全局退出函数
-window.logout = function () {
-    if (loginManager) {
-        loginManager.logout();
-    }
-};
 
 // 页面加载时初始化
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initLoginManager);
-} else {
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded - 初始化登录管理器');
+    initLoginManager();
+});
+
+// 如果DOM已经加载完成，立即初始化
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    console.log('文档已加载 - 初始化登录管理器');
     initLoginManager();
 }
+
+// 添加重试机制
+setTimeout(() => {
+    if (!loginManager) {
+        console.log('延迟初始化登录管理器');
+        initLoginManager();
+    }
+}, 1000);
+
+// 添加一个全局点击事件监听器，用于调试
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.login-btn')) {
+        console.log('登录按钮被点击');
+        console.log('loginManager:', loginManager);
+        console.log('window.login:', window.login);
+    }
+});
