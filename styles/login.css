@@ -1,317 +1,229 @@
-/* 登录相关样式 - 优化版 */
+/* login.css - 登录相关样式 */
 
-/* 登录按钮样式增强 */
-.login-btn {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    min-width: 40px;
-    height: 40px;
-    border-radius: 20px;
+/* VIP歌曲样式 */
+.vip-song {
+    border-left: 3px solid #ffd700;
+    background: linear-gradient(90deg, rgba(255,215,0,0.05) 0%, transparent 100%) !important;
+}
+
+.vip-song:hover {
+    background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, transparent 100%) !important;
+}
+
+.vip-tag {
+    background: linear-gradient(45deg, #ffd700, #ffa500);
+    color: #000;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 8px;
+    margin-left: 5px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.vip-song-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: linear-gradient(45deg, #ffd700, #ffa500);
+    color: #000;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 8px 15px;
-    border: 1px solid var(--border-color);
-    background: var(--card-bg);
-    color: var(--text-color);
+    font-size: 8px;
+    z-index: 10;
 }
 
-.login-btn:hover {
-    background: var(--bg-color);
+/* VIP卡片样式 */
+.vip-card {
+    position: relative;
+    border: 2px solid rgba(255,215,0,0.3) !important;
+}
+
+.vip-card:hover {
+    border-color: #ffd700 !important;
+    box-shadow: 0 5px 15px rgba(255,215,0,0.2) !important;
+}
+
+.vip-badge-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(45deg, #ffd700, #ffa500);
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+/* VIP按钮样式 */
+.vip-btn {
+    background: linear-gradient(45deg, #ffd700, #ffa500) !important;
+    color: #000 !important;
+    border: none !important;
+}
+
+.vip-btn:hover {
+    background: linear-gradient(45deg, #ffc107, #ff9800) !important;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(255,165,0,0.4) !important;
 }
 
-.login-btn img {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    object-fit: cover;
-    transition: all 0.3s;
-    border: 2px solid transparent;
+.vip-locked {
+    background: linear-gradient(45deg, #6c757d, #495057) !important;
+    color: #fff !important;
+    cursor: pointer;
 }
 
-.login-btn:hover img {
-    border-color: var(--primary-color);
-    transform: scale(1.05);
+.vip-locked:hover {
+    background: linear-gradient(45deg, #5a6268, #343a40) !important;
 }
 
-/* 登录弹窗样式 */
-#loginModal .modal-content {
-    max-width: 320px;
-    text-align: center;
-    animation: modalSlideIn 0.3s ease;
+/* 不可播放样式 */
+.unplayable {
+    opacity: 0.7;
+    filter: grayscale(30%);
 }
 
-@keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.unplayable-card {
+    opacity: 0.8;
+    filter: grayscale(20%);
 }
 
-.login-instruction {
-    color: #666;
-    margin-bottom: 20px;
-    line-height: 1.6;
-    font-size: 14px;
+.disabled {
+    background: #e9ecef !important;
+    color: #6c757d !important;
+    cursor: not-allowed !important;
+    border-color: #dee2e6 !important;
 }
 
-/* 二维码容器 */
-#qrcodeContainer {
-    text-align: center;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 15px;
-    margin: 15px 0;
-    border: 2px dashed #dee2e6;
-    transition: all 0.3s ease;
-}
-
-#qrcodeContainer.active {
-    border-color: var(--primary-color);
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-}
-
-#qrcodeImage {
-    max-width: 200px;
-    height: 200px;
-    margin: 0 auto 15px;
-    padding: 15px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    border: 1px solid #e9ecef;
-}
-
-#qrcodeImage img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    border-radius: 8px;
-}
-
-/* 状态框 */
-.status-box {
-    padding: 12px;
-    border-radius: 8px;
-    margin: 10px 0;
+/* 搜索结果头部登录状态 */
+.search-login-status {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.status-success {
-    background: linear-gradient(135deg, #d4edda, #c3e6cb);
-    border-left: 4px solid #28a745;
-    color: #155724;
-}
-
-.status-error {
-    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-    border-left: 4px solid #dc3545;
-    color: #721c24;
-}
-
-.status-info {
-    background: linear-gradient(135deg, #d1ecf1, #bee5eb);
-    border-left: 4px solid #17a2b8;
-    color: #0c5460;
-}
-
-.status-waiting {
-    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-    border-left: 4px solid #ffc107;
-    color: #856404;
-}
-
-/* 二维码时间戳 */
-.qr-timestamp {
-    font-size: 12px;
-    color: #999;
-    margin-top: 10px;
-}
-
-/* 登录结果 */
-#qrResult {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    border: 1px solid #dee2e6;
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* 用户菜单样式 */
-.user-menu {
-    position: absolute;
-    top: 60px;
-    right: 20px;
-    background: var(--card-bg);
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    min-width: 250px;
-    z-index: 1000;
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-    animation: fadeIn 0.2s ease;
-}
-
-.user-menu-header {
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
-    background: linear-gradient(135deg, rgba(230,0,38,0.05), rgba(255,45,85,0.05));
-}
-
-.user-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid white;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-}
-
-.default-avatar {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, var(--primary-color), #ff2d55);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    box-shadow: 0 3px 10px rgba(230,0,38,0.3);
+    margin-right: 15px;
+    padding: 5px 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
 }
 
 .user-info {
-    flex: 1;
-}
-
-.user-name {
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin-bottom: 5px;
-}
-
-.user-uid {
-    font-size: 12px;
-    color: #666;
     display: flex;
     align-items: center;
     gap: 5px;
+    font-size: 14px;
+    color: var(--text-color);
 }
 
-/* 统计网格 */
-.stats-grid {
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
+.login-prompt {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    color: #6c757d;
 }
 
-.stat-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+.login-action-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+}
+
+.login-action-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+/* 搜索建议中的登录提示 */
+.login-suggestion {
+    background: linear-gradient(45deg, #28a745, #20c997) !important;
+    color: white !important;
+}
+
+.login-suggestion:hover {
+    background: linear-gradient(45deg, #218838, #1e9e8a) !important;
+}
+
+.vip-suggestion {
+    background: linear-gradient(45deg, #ffd700, #ffa500) !important;
+    color: #000 !important;
+}
+
+.vip-suggestion:hover {
+    background: linear-gradient(45deg, #ffc107, #ff9800) !important;
+}
+
+/* 搜索头部布局 */
+.search-header-right {
+    display: flex;
+    align-items: center;
     gap: 15px;
 }
 
-.stat-item {
-    text-align: center;
-}
-
-.stat-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--primary-color);
-    margin-bottom: 5px;
-}
-
-.stat-label {
-    font-size: 12px;
-    color: #666;
-}
-
-/* 退出按钮 */
-.logout-btn {
-    width: 100%;
-    padding: 12px;
-    background: transparent;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    color: var(--text-color);
-    cursor: pointer;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.3s;
-    margin: 15px;
-    width: calc(100% - 30px);
-}
-
-.logout-btn:hover {
-    background: var(--bg-color);
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(230,0,38,0.1);
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-    .user-menu {
-        position: fixed;
-        top: 70px;
-        right: 10px;
-        left: 10px;
-        max-width: 300px;
-        margin: 0 auto;
-    }
-    
-    #loginModal .modal-content {
-        max-width: 90%;
-        margin: 20px;
-    }
-    
-    #qrcodeImage {
-        max-width: 180px;
-        height: 180px;
-    }
-}
-
 /* 暗色主题适配 */
-[data-theme="dark"] #qrcodeContainer {
-    background: rgba(50, 50, 50, 0.5);
-    border-color: rgba(255, 255, 255, 0.1);
+[data-theme="dark"] .vip-song {
+    border-left-color: #ffd700;
+    background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(0,0,0,0.1) 100%) !important;
 }
 
-[data-theme="dark"] #qrcodeImage {
-    background: rgba(70, 70, 70, 0.5);
-    border-color: rgba(255, 255, 255, 0.1);
+[data-theme="dark"] .vip-card {
+    border-color: rgba(255,215,0,0.5) !important;
 }
 
-[data-theme="dark"] .user-uid {
-    color: #aaa;
+[data-theme="dark"] .vip-locked {
+    background: linear-gradient(45deg, #495057, #343a40) !important;
 }
 
-[data-theme="dark"] .stat-label {
-    color: #aaa;
+[data-theme="dark"] .search-login-status {
+    background: rgba(0,0,0,0.3);
+    border-color: rgba(255,255,255,0.1);
 }
 
-[data-theme="dark"] .login-instruction {
-    color: #aaa;
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .search-header-right {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .search-login-status {
+        margin-right: 0;
+    }
+    
+    .login-action-btn {
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .vip-tag {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+    
+    .vip-badge-overlay {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
 }
