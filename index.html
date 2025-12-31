@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="styles/themes.css">
     <link rel="stylesheet" href="styles/theme.css">
     <link rel="stylesheet" href="styles/login.css">
+    <link rel="stylesheet" href="styles/playlists.css"> <!-- 新增：我的歌单样式 -->
     
     <!-- 图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -189,7 +190,7 @@
         </div>
     </main>
 
-    <!-- 底部播放器 -->
+    <!-- 底部播放器（这里只保留占位符，实际内容通过JS加载） -->
     <div id="neteasePlayer"></div>
 
     <!-- API配置 -->
@@ -210,11 +211,14 @@
     </div>
 
     <!-- JavaScript 文件 -->
-    <script src="js/netease.js"></script>
-    <script src="js/search.js"></script>
-    <script src="js/player.js"></script>
-    <script src="js/theme.js"></script>
-    <script src="js/login.js"></script> <!-- 新增的登录管理器 -->
+    <!-- 在 index.html 中更新脚本加载顺序 -->
+        <script src="js/netease.js"></script>
+        <script src="js/unified-player.js"></script> <!-- 新增 -->
+        <script src="js/search.js"></script>
+        <script src="js/player.js"></script>
+        <script src="js/theme.js"></script>
+        <script src="js/login.js"></script>
+        <script src="js/playlists.js"></script>
 
     <script>
         // 加载组件
@@ -268,6 +272,11 @@
             // 初始化登录管理器
             if (typeof initLoginManager === 'function') {
                 initLoginManager();
+            }
+            
+            // 初始化歌单管理器
+            if (typeof initPlaylistManager === 'function') {
+                initPlaylistManager();
             }
         }
     </script>
